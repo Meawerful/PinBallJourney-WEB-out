@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1790159328|32284591147';
+const CACHE_VERSION = '1790325847|16231084989';
 /** @type {string} */
 const CACHE_PREFIX = 'PinBallJourney-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
@@ -17,7 +17,7 @@ const ENSURE_CROSSORIGIN_ISOLATION_HEADERS = true;
 const CACHED_FILES = ["PinballJourneyV0.63.html","PinballJourneyV0.63.js","PinballJourneyV0.63.offline.html","PinballJourneyV0.63.icon.png","PinballJourneyV0.63.apple-touch-icon.png","PinballJourneyV0.63.audio.worklet.js","PinballJourneyV0.63.audio.position.worklet.js"];
 // Files that we might not want the user to preload, and will only be cached on first load.
 /** @type {string[]} */
-const CACHEABLE_FILES = ["PinballJourneyV0.63.wasm","PinballJourneyV0.63.pck","PinballJourneyV0.63.side.wasm"];
+const CACHEABLE_FILES = ["PinballJourneyV0.63.wasm","PinballJourneyV0.63.pck"];
 const FULL_CACHE = CACHED_FILES.concat(CACHEABLE_FILES);
 
 self.addEventListener('install', (event) => {
