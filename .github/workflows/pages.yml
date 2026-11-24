@@ -38,6 +38,18 @@ jobs:
           test -s site/play/index.pck
           cp PinballJourneyV0.63.* site/
           cp pages/index.html site/index.html
+          python - <<'PY'
+          from pathlib import Path
+
+          snippet = Path("pages/clarity.html").read_text(encoding="utf-8").strip()
+          for page in (Path("site/play/index.html"), Path("site/PinballJourneyV0.63.html")):
+              html = page.read_text(encoding="utf-8")
+              if snippet in html:
+                  continue
+              if html.count("</head>") != 1:
+                  raise ValueError(f"Expected a single </head> in {page}")
+              page.write_text(html.replace("</head>", snippet + "\n</head>"), encoding="utf-8")
+          PY
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
