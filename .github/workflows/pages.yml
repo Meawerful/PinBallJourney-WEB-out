@@ -16,11 +16,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
@@ -50,8 +49,35 @@ jobs:
                   raise ValueError(f"Expected a single </head> in {page}")
               page.write_text(html.replace("</head>", snippet + "\n</head>"), encoding="utf-8")
           PY
-      - uses: actions/upload-pages-artifact@v4
+      - id: upload
+        uses: actions/upload-pages-artifact@v4
         with:
           path: site
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Wait for the uploaded Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.build.outputs.artifact_id }}
+        run: |
+          for attempt in {1..30}; do
+            if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=github-pages" \
+              --jq '.artifacts[].id' | grep -Fxq "$ARTIFACT_ID"; then
+              exit 0
+            fi
+            sleep 4
+          done
+          echo "::error::Pages artifact $ARTIFACT_ID did not appear in the workflow run."
+          exit 1
       - id: deploy
         uses: actions/deploy-pages@v4
